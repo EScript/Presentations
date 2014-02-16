@@ -3,18 +3,17 @@
 % Set input encoding to UTF-8.
 \usepackage[utf8x]{inputenc}
 
+% Set fonts.
+\usepackage[T1]{fontenc}
+\usepackage{textcomp}
+\usepackage{tgtermes}
+\usepackage{tgheros}
+\usepackage{tgcursor}
+
 % Set language.
 \usepackage[ngerman]{babel}
 
-% \usepackage{multimedia}
-% \usepackage{tikz}
-% \usetikzlibrary{3d,calc,matrix,positioning,trees}
-
-% \usepackage{amsmath}
-% \usepackage{units}
 \usepackage{microtype}
-% \usepackage{stmaryrd}
-
 \usepackage{listings}
 
 \title{EScript}
@@ -22,15 +21,10 @@
 \author{Benjamin~Eikel}
 \date{13. Februar 2012}
 
-\newcommand{\HNIphone}{+49 5251 60-6452}
-\newcommand{\HNIfax}{+49 5251 60-6482}
-\newcommand{\HNIemail}{eikel@upb.de}
-\newcommand{\HNIweb}{http://wwwhni.upb.de/alg/}
-\newcommand{\HNIaffiliation}{Benjamin Eikel ist Stipendiat der \href{http://pace.uni-paderborn.de/de/studienprogramme/igs.html}{\includegraphics[width=.9\linewidth]{logo_igs}}}
-
-% Activate the Heinz Nixdorf Institute theme.
-\usepackage{HNI/beamerthemeHNI}
-
+\useinnertheme{rectangles}
+\useoutertheme{infolines}
+\usecolortheme{seahorse}
+\usecolortheme{rose}
 \setbeamertemplate{bibliography item}[triangle] 
 
 \begin{document}
@@ -290,7 +284,5 @@ EScript $\ldots$ \\[1em]
 		\end{lstlisting}
 	\end{block}
 \end{frame}
-
-\HNIlastframe
 
 \end{document}
