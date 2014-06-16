@@ -1,0 +1,431 @@
+\documentclass[ucs,9pt]{beamer}
+
+% Set input encoding to UTF-8.
+\usepackage[utf8x]{inputenc}
+
+% Set fonts.
+\usepackage[T1]{fontenc}
+\usepackage{textcomp}
+\usepackage{tgtermes}
+\usepackage{tgheros}
+\usepackage{tgcursor}
+
+% Set language.
+\usepackage[english]{babel}
+
+\usepackage{microtype}
+\usepackage{listings}
+
+\title{EScript}
+\subtitle{A Short Introduction}
+\author{Benjamin~Eikel, Claudius~Jähn}
+\date{Version: June 16, 2012}
+\titlegraphic{\includegraphics[width=0.1\textwidth]{logoAscii.pdf}}
+
+% theme Benjamin
+%\useinnertheme{rectangles}
+%\useoutertheme{infolines}
+%\usecolortheme{seahorse}
+%\usecolortheme{rose}
+
+% theme Claudius
+\usetheme{Pittsburgh}
+\useinnertheme{rectangles}
+\usecolortheme{fly}
+\setbeamercolor{normal text}{bg=black, fg=white}
+\setbeamercolor{subtitle}{bg=black, fg=white}
+\setbeamercolor{block body}{fg=white,bg=white!10!black}
+
+\AtBeginSection[] {
+\begin{frame}{Overview}
+	\tableofcontents[currentsection]
+\end{frame}
+}
+
+\begin{document}
+\lstdefinelanguage{EScript}{
+	morekeywords={var,new,fn,this,true,false,void,if,else,while,for,foreach,as,thisFn,break,continue,return,once,init,switch,case,yield},
+	morekeywords=[2]{out,outln,ExtObject,Type,Number,Map,Array},
+	sensitive=true,
+	morecomment=[l]{//},
+	morecomment=[s]{/*}{*/},
+	morestring=[b]{"},
+	morestring=[d]{’}
+}
+\lstset{
+	language=EScript,
+	showstringspaces=false,
+	tabsize=4,
+	basicstyle=\ttfamily,
+	%keywordstyle=[2]\color{blue}
+}
+\maketitle
+
+
+\begin{frame}{Overview}
+\tableofcontents
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Introduction}
+\begin{frame}[t]{What is EScript?}
+\includegraphics[width=1cm]{EScript_Logo} EScript $\ldots$ \\[1em]
+\only<1>{
+\begin{itemize}
+	\addtolength{\itemsep}{\baselineskip}
+	\item is an object-oriented scripting language.
+	\item is compiled and executed by a virtual machine.
+	\item has a similar syntax to C.
+	\item was developed to use C++ objects from scripts easily.
+\end{itemize}
+}
+\only<2>{
+\begin{itemize}
+	\addtolength{\itemsep}{\baselineskip}
+	\item is released under a free software license (MIT).
+	\item is available from \url{https://github.com/EScript}.
+	\item has a command-line interpreter.
+	\item can be built using CMake.
+	\item can be used internally by other C++ projects \\
+	(e.g. by PADrend \url{http://PADrend.de}).
+	\item stands for HasE-Script.
+\end{itemize}
+}
+\end{frame}
+
+\begin{frame}[fragile]{First Example}
+\begin{itemize}
+	\addtolength{\itemsep}{\baselineskip}
+	%\item EScript files should have the extension \texttt{.escript}.
+	%\item The EScript parser analyzes the script file line by line.
+	\item A simple script: \lstinline{HelloWorld.escript}
+	\small
+			\begin{lstlisting}
+				outln( "Hello, world!" ); // Outputs: Hello World!
+			\end{lstlisting}
+	\normalsize
+		\item Calls the global function \lstinline!out! with the string  \lstinline{"Hello world!"}  as parameter value.
+		\item The statements ends with a semicolon.
+		\item Comments begin with  \lstinline{//}  or are enclosed \lstinline{/*    */}.
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Data Types and Operators}
+\begin{frame}[fragile]{Simple Types (call-by-value)}
+	\begin{block}{Number}
+		\hfill \lstinline!42! \hfill \lstinline!27.4! \hfill \lstinline!0x1a! \hfill \lstinline!-2.7e+10! \hfill \lstinline!0b101010! \hfill{}
+	\end{block}
+	\begin{block}{String}
+		\hfill \lstinline!"an"! \hfill \lstinline!'example string'!  \hfill{}
+	\end{block}
+	\begin{block}{Bool}
+		\hfill \lstinline!true! \hfill \lstinline!false! \hfill{}
+	\end{block}
+	\begin{block}{Void (empty or no value)}
+		\hfill \lstinline!void! \hfill{}
+	\end{block}
+\end{frame}
+
+\begin{frame}[fragile]{Operators}
+	\begin{block}{Some operators}
+				\begin{lstlisting}
+				outln( 2+40 ); // Output: 42
+				outln( 2*21 ); // Output: 42
+				outln( "4" + "2" ); // Output: 42
+				outln( "foo"+"'bar" ); // Output: foobar
+				outln( "wup " * (6/2)  ); // Output: wup wup wup
+				outln( 1>2  ); // Output: false
+				outln( !true   ); // Output: false
+				outln( true & true  ); // Output: true
+				outln( false || true  ); // Output: true
+				outln( "foo" == "bar"'  ); // Output: false
+				outln( "foo" != "bar"'  ); // Output: true
+			\end{lstlisting}
+	\end{block}
+\end{frame}
+	
+\begin{frame}[fragile]{Type Conversion}
+	\begin{block}{Only \lstinline!false!  and \lstinline!void!  convert to \lstinline!false! }
+		\begin{lstlisting}
+			outln(false || false); // Output: false
+			outln(false || void); // Output: true
+			outln(false || 0); // Output: true
+			outln(false || ""); // Output: true
+		\end{lstlisting}
+	\end{block}
+	\pause
+	\begin{block}{Conversion to number (left operand is a number)}
+		\begin{lstlisting}
+			outln( 12 + "3" ); // Output: 15
+			outln( 10 * "10" ); // Output: 100
+			outln( 10 == "10" ); // Output: true
+			outln( 10 == "10.0" ); // Output: true
+		\end{lstlisting}
+	\end{block}
+	\pause
+	\begin{block}{Conversion to string (left operand is a string)}
+		\begin{lstlisting}
+			outln("12" + 3); // Output: 123
+			outln("10" == 10); // Output: true
+			outln("10.0" == 10); // Output: false
+		\end{lstlisting}
+	\end{block}
+\end{frame}
+
+\begin{frame}[fragile]{Equality checks}
+		\begin{block}{Check equality with conversion == \\
+		Check equality without conversion === }
+		\begin{lstlisting}
+			outln( 10 == "10" ); // Output: true
+			outln( 10 === "10" ); // Output: false
+			outln( 10 === 10 ); // Output: true
+			outln( true == "foo" ); // Output: true
+			outln( true === "true" ); // Output: false
+			outln( "true" == true ); // Output: true
+			outln( "true" === true ); // Output: false
+		\end{lstlisting}
+	\end{block}
+\end{frame}
+%			outln((60 + "4").sqrt()); // Output: 8
+			%outln((10 * "10").log(10)); // Output: 2
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Functions and variables}
+\begin{frame}[fragile]{Calling functions}
+	\begin{block}{Calling functions with different origins}
+		\begin{lstlisting}
+			// call global function 'load':
+			load( "someScript.escript" );  
+			
+			// call function 'saveTextFile' in namespace 'IO':
+			IO.saveTextFile( "foo.txt" , "bar" ); 
+			
+			// call member function 'sqrt' of object 9.0:
+			out( (9.0).sqrt() ); // Output: 3
+		\end{lstlisting}
+	\end{block}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	
+\begin{frame}[fragile]{Declaring Variables}
+	\begin{block}{Declare a variable with \lstinline!var!:}
+		\begin{lstlisting}
+			
+			// "foo" is an empty variable (contains void).
+			var foo; 
+			
+			// The variable "xPos" contains a number
+			var xPos = 500 - 80 / 2;
+
+			// The variable "message" will be of type String
+			var message = "Please click the button";
+
+			// Dynamically change the type to Number
+			message = 5;
+		\end{lstlisting}
+	\end{block}
+\end{frame}
+
+\begin{frame}[fragile]{Declaring simple functions}
+	\begin{itemize}
+	\item Declare functions with \lstinline!fn!.
+	\item Functions have no names, but they can be stored in a variable:
+		\begin{lstlisting}
+			var square = fn(num) {
+			    return num * num;
+			};
+			var a = square(5);
+			var b = square(4.2);
+		\end{lstlisting}
+		\end{itemize}
+	\end{frame}
+
+\begin{frame}[fragile]{Advanced Types (1)}
+	\begin{block}{Array}
+		\begin{lstlisting}
+			var numbers = [3, 23, 7, 3, 100, 1, 35];
+			var colors = ["red", "green", "blue"];
+			outln( numbers[4] ); // Outputs: 100
+			outln( numbers.count() ); // Outputs: 7
+			outln( numbers.empty() ); // Outputs: false
+		\end{lstlisting}
+	\end{block}
+	\begin{block}{Map}
+		\begin{lstlisting}
+			var fruits = {
+			    "lemon" : "yellow",
+			    "cherry" : "red"
+			};
+			fruits["apple"] = "green";
+		\end{lstlisting}
+	\end{block}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Control Structures}
+\begin{frame}[fragile]{Conditionals (1)}
+	\begin{block}{Conditional execution with \lstinline!if/else!.}
+		\begin{lstlisting}
+			var result = /* some function */;
+			if(result) {
+			    out("Success");
+			} else {
+			    out("Failure");
+			}
+		\end{lstlisting}
+		\begin{lstlisting}
+			var num = /* some number */;
+			if(num < 0) {
+			    out("Too small");
+			} else if(num >= 0 && num <= 100) {
+			    out("Range okay");
+			} else {
+			    out("Too large");
+			}
+		\end{lstlisting}
+	\end{block}
+\end{frame}
+
+\begin{frame}[fragile]{Conditionals (2)}
+	\begin{block}{? (conditional operator)}
+		\begin{lstlisting}
+			var num = /* some number */;
+			var positive = (num > 0) ? true : false;
+		\end{lstlisting}
+	\end{block}
+	\pause
+	\vfill
+\end{frame}
+
+\begin{frame}[fragile]{Loops (1)}
+	\begin{block}{Looping with \lstinline!while!:}
+		\begin{lstlisting}
+			var tasks = [/* some tasks */];
+			while(!tasks.empty()) {
+			    var firstTask = tasks.front();
+			    tasks.popFront();
+			    // do something with first task
+			}
+		\end{lstlisting}
+	\end{block}
+\end{frame}
+
+\begin{frame}[fragile]{Loops (2)}
+	\begin{block}{Looping with \lstinline!for!:}
+		\begin{lstlisting}
+			var sum = 0;
+			for(var i = 0; i < 100; ++i) {
+			    sum += i;
+			}
+			out("Sum of numbers: ", sum, "\n");
+		\end{lstlisting}
+	\end{block}
+\end{frame}
+
+\begin{frame}[fragile]{Loops (3)}
+	\begin{block}{Iterate over a container: \lstinline!foreach!.}
+		\begin{lstlisting}
+			var chars = ["a", "c", "k", "b", "d", "x", "j"];
+			foreach(chars as var i, var c) {
+			    if(c === "x") {
+			        out("Character 'x' found at index " + i);
+			        break;
+			    }
+			}
+		\end{lstlisting}
+	\end{block}
+	Output: Character "x" found at index 5
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Objects and Types}
+\begin{frame}[fragile]{Extendable object}
+	\begin{block}{Extendable objects:  \lstinline!ExtObject!.}
+		\begin{lstlisting}
+			var car = new ExtObject;
+			car.color := "red"; // create new member
+			car.speed := 190;
+			car.outputDesc := fn() {
+			    out("This is a ", this.color, " car ");
+			    out("with top speed ", this.speed, ".\n");
+			};
+
+			...
+
+			car.speed = 185;
+			car.outputDesc();
+		\end{lstlisting}
+	\end{block}
+	Output: This is a red car with top speed 185.
+\end{frame}
+
+\begin{frame}[fragile]{Inheritance}
+	\begin{block}{Types and inheritance:}
+		\begin{lstlisting}
+			var Shape = new Type;
+			Shape.color := "white";
+
+			// New type that is derived from Shape
+			var Polygon = new Type(Shape); 
+			Polygon.numVertices := 3;
+
+			// New type that is derived from Shape
+			var Circle = new Type(Shape); 
+			Circle.radius := 0;
+
+			var circle = new Circle;
+			circle.color = "red";
+			circle.radius = 5;
+		\end{lstlisting}
+	\end{block}
+\end{frame}
+ 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Other Features}
+\begin{frame}{Delegation}
+	Call a function on another object.
+	\begin{block}{Example}
+		\lstinputlisting{Delegation.escript}
+	\end{block}
+\end{frame}
+
+\begin{frame}{Properties}
+	\begin{block}{Example}
+		\lstinputlisting{Properties.escript}
+	\end{block}
+\end{frame}
+
+\section{Examples}
+\begin{frame}{Factorial}
+	Factorial: $\qquad n! = 1 \cdot 2 \cdot 3 \cdot \ldots \cdot n \qquad 0! = 1$
+	\begin{block}{Example}
+		\lstinputlisting{ExampleFactorial.escript}
+	\end{block}
+\end{frame}
+
+\begin{frame}{Player}
+	\begin{block}{Example}
+		\lstinputlisting{ExamplePlayer.escript}
+	\end{block}
+\end{frame}
+
+\begin{frame}{Further Documentation}
+	You can find additional documentation in \texttt{EScript/docs/Introduction.html}.
+\end{frame}
+
+
+% binding parameters/Objects
+% var and static life
+% attributes
+% exception handling
+% std lib
+% modules
+% traits
+
+%homework
+
+\end{document}
