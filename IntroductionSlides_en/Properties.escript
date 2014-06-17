@@ -1,10 +1,10 @@
-var Polygon = new Type();
+var Polygon = new Type;
 Polygon.vertices @(private, init) := Array;
 Polygon.shapeType @(const) := "Polygon";
 
-Polygon.getNumVertices := fn() {
+Polygon.getNumVertices ::= fn() {
 	return this.vertices.count();
 };
 
-var polygon = new Polygon();
+var polygon = new Polygon;
 polygon.getNumVertices();
