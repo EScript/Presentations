@@ -16,10 +16,10 @@
 \usepackage{microtype}
 \usepackage{listings}
 
-\title{EScript}
+\title{EScript (0.7.2 Egon)}
 \subtitle{A Short Introduction}
 \author{Benjamin~Eikel, Claudius~Jähn}
-\date{Version: June 17, 2012}
+\date{Version: March, 2015}
 \titlegraphic{\includegraphics[width=0.1\textwidth]{logoAscii.pdf}}
 
 % theme Benjamin
@@ -96,12 +96,11 @@
 \begin{frame}[fragile]{First Example}
 \begin{itemize}
 	\addtolength{\itemsep}{\baselineskip}
-	%\item EScript files should have the extension \texttt{.escript}.
-	%\item The EScript parser analyzes the script file line by line.
-	\item A simple script: \lstinline{HelloWorld.escript}
+	\item A simple script:
+	%\\
 	\small
 			\begin{lstlisting}
-				outln( "Hello World!" ); // Outputs: Hello World!
+outln( "Hello World!" ); // Outputs: Hello World!
 			\end{lstlisting}
 	\normalsize
 	\pause
@@ -131,46 +130,46 @@
 
 \begin{frame}[fragile]{Operators}
 	\begin{block}{Some operators}
-				\begin{lstlisting}
-				outln( 2+40 ); // Output: 42
-				outln( 2*21 ); // Output: 42
-				outln( "4" + "2" ); // Output: 42
-				outln( "foo"+"bar" ); // Output: foobar
-				outln( "wup " * (6/2)  ); // Output: wup wup wup
-				outln( 1>2  ); // Output: false
-				outln( !true   ); // Output: false
-				outln( true & true  ); // Output: true
-				outln( false || true  ); // Output: true
-				outln( "foo" == "bar"  ); // Output: false
-				outln( "foo" != "bar"  ); // Output: true
-			\end{lstlisting}
+\begin{lstlisting}
+outln( 2+40 ); // Output: 42
+outln( 2*21 ); // Output: 42
+outln( "4" + "2" ); // Output: 42
+outln( "foo"+"bar" ); // Output: foobar
+outln( "wup " * (6/2)  ); // Output: wup wup wup
+outln( 1>2  ); // Output: false
+outln( !true   ); // Output: false
+outln( true & true  ); // Output: true
+outln( false || true  ); // Output: true
+outln( "foo" == "bar"  ); // Output: false
+outln( "foo" != "bar"  ); // Output: true
+\end{lstlisting}
 	\end{block}
 \end{frame}
 	
 \begin{frame}[fragile]{Type Conversion}
 	\begin{block}{Only \lstinline!false!  and \lstinline!void!  convert to \lstinline!false! }
 		\begin{lstlisting}
-			outln(false || false); // Output: false
-			outln(false || void); // Output: false
-			outln(false || 0); // Output: true
-			outln(false || ""); // Output: true
+outln(false || false); // Output: false
+outln(false || void); // Output: false
+outln(false || 0); // Output: true
+outln(false || ""); // Output: true
 		\end{lstlisting}
 	\end{block}
 	\pause
 	\begin{block}{Conversion to number (left operand is a number)}
 		\begin{lstlisting}
-			outln( 12 + "3" ); // Output: 15
-			outln( 10 * "10" ); // Output: 100
-			outln( 10 == "10" ); // Output: true
-			outln( 10 == "10.0" ); // Output: true
+outln( 12 + "3" ); // Output: 15
+outln( 10 * "10" ); // Output: 100
+outln( 10 == "10" ); // Output: true
+outln( 10 == "10.0" ); // Output: true
 		\end{lstlisting}
 	\end{block}
 	\pause
 	\begin{block}{Conversion to string (left operand is a string)}
 		\begin{lstlisting}
-			outln( "12" + 3 ); // Output: 123
-			outln( "10" == 10 ); // Output: true
-			outln( "10.0" == 10 ); // Output: false
+outln( "12" + 3 ); // Output: 123
+outln( "10" == 10 ); // Output: true
+outln( "10.0" == 10 ); // Output: false
 		\end{lstlisting}
 	\end{block}
 \end{frame}
@@ -179,54 +178,65 @@
 		\begin{block}{Check equality with conversion == \\
 		Check equality without conversion === }
 		\begin{lstlisting}
-			outln( 10 == "10" ); // Output: true
-			outln( 10 === "10" ); // Output: false
-			outln( 10 === 10 ); // Output: true
-			outln( true == "foo" ); // Output: true
-			outln( true === "true" ); // Output: false
-			outln( "true" == true ); // Output: true
-			outln( "true" === true ); // Output: false
+outln( 10 == "10" ); // Output: true
+outln( 10 === "10" ); // Output: false
+outln( 10 === 10 ); // Output: true
+outln( true == "foo" ); // Output: true
+outln( true === "true" ); // Output: false
+outln( "true" == true ); // Output: true
+outln( "true" === true ); // Output: false
 		\end{lstlisting}
 	\end{block}
 \end{frame}
-%			outln((60 + "4").sqrt()); // Output: 8
-			%outln((10 * "10").log(10)); // Output: 2
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{frame}[fragile]{Special type: Identifier}
+\begin{itemize}
+	\item Variable and attribute names have a special data type: Identifier.
+	\item Identifier objects are immutable (can not be changed).
+	\item Identifiers are often used as value for constants.
+	\item Identifiers are created using the dollar sign: \lstinline!$exampleIdentifier!
+	\item \lstinline!$foo == "foo" // false!
+	\item \lstinline!"foo" == $foo // true!
+\end{itemize}
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Calling functions}
 \begin{frame}[fragile]{Calling functions}
 	\begin{block}{Calling functions with different origins:}
 		\begin{lstlisting}
-			// call global function 'load':
-			load( "someScript.escript" );  
-			
-			// call function 'saveTextFile' in namespace 'IO':
-			IO.saveTextFile( "foo.txt" , "bar" ); 
-			
-			// call method 'sqrt' of object 9.0:
-			out( (9.0).sqrt() ); // Output: 3
+// call global function 'load':
+load( "someScript.escript" );  
+
+// call function 'saveTextFile' in namespace 'IO':
+IO.saveTextFile( "foo.txt" , "bar" ); 
+
+// call method 'sqrt' of object 9.0:
+out( (9.0).sqrt() ); // Output: 3
 		\end{lstlisting}
 	\end{block}
 \end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Local variables}
 \begin{frame}[fragile]{Declaring Variables}
 	\begin{block}{Declare a variable with \lstinline!var!:}
 		\begin{lstlisting}
 			
-			// "foo" is an empty variable (containing void).
-			var foo; 
-			
-			// The variable "xPos" contains a number
-			var xPos = 500 - 80 / 2;
+// "foo" is an empty variable (containing void).
+var foo; 
 
-			// The variable "message" will be of type String
-			var message = "Please click the button";
+// The variable "xPos" contains a number
+var xPos = 500 - 80 / 2;
 
-			// Dynamically change the type to Number
-			message = 5;
+// The variable "message" will be of type String
+var message = "Please click the button";
+
+// Dynamically change the type to Number
+message = 5;
 		\end{lstlisting}
 	\end{block}
 \end{frame}
@@ -235,44 +245,44 @@
 \begin{frame}[fragile]{Built-in collection types}
 	\begin{block}{Array}
 		\begin{lstlisting}
-			var numbers = [3, 23, 7, 3, 100, 1, 35];
-			var colors = ["red", "green", "blue"];
-			outln( numbers[4] ); // Outputs: 100
-			outln( numbers.count() ); // Outputs: 7
-			outln( numbers.empty() ); // Outputs: false
+var numbers = [3, 23, 7, 3, 100, 1, 35];
+var colors = ["red", "green", "blue"];
+outln( numbers[4] ); // Outputs: 100
+outln( numbers.count() ); // Outputs: 7
+outln( numbers.empty() ); // Outputs: false
 		\end{lstlisting}
 	\end{block}
 	\begin{block}{Map}
 		\begin{lstlisting}
-			var fruits = {
-			    "lemon" : "yellow",
-			    "cherry" : "red"
-			};
-			fruits["apple"] = "green";
+var fruits = {
+		"lemon" : "yellow",
+		"cherry" : "red"
+};
+fruits["apple"] = "green";
 		\end{lstlisting}
 	\end{block}
 \end{frame}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Control Structures}
 \begin{frame}[fragile]{Conditionals (1)}
 	\begin{block}{Conditional execution with \lstinline!if/else!.}
 		\begin{lstlisting}
-			var result = someFunction();
-			if(result) {
-			    out("Success");
-			} else {
-			    out("Failure");
-			}
+var result = someFunction();
+if(result) {
+		out("Success");
+} else {
+		out("Failure");
+}
 		\end{lstlisting}
 		\begin{lstlisting}
-			var num = calculateSomething();
-			if(num < 0) 
-			    out("Too small");
-			else if(num >= 0 && num <= 100)
-			    out("Range okay");
-			else
-			    out("Too large");
+var num = calculateSomething();
+if(num < 0) 
+		out("Too small");
+else if(num >= 0 && num <= 100)
+		out("Range okay");
+else
+		out("Too large");
 		\end{lstlisting}
 	\end{block}
 \end{frame}
@@ -280,24 +290,22 @@
 \begin{frame}[fragile]{Conditionals (2)}
 	\begin{block}{? (conditional operator)}
 		\begin{lstlisting}
-			var num = calculateSomething();
-			var positive = (num > 0) ? true : false;
+var num = calculateSomething();
+var positive = (num > 0) ? true : false;
 		\end{lstlisting}
 	\end{block}
-%	\pause
-%	\vfill
 \end{frame}
 
 \begin{frame}[fragile]{Loops (1)}
 	\begin{block}{Looping with \lstinline!while!:}
 		\begin{lstlisting}
-			var numbers = [ 4,5,29,32 ];
-			while(!numbers.empty()) {
-			    var n = tasks.back();
-			    n.popBack();
-			    out( n, " " );
-			}
-			// Outputs: 32 29 5 4
+var numbers = [ 4,5,29,32 ];
+while(!numbers.empty()) {
+		var n = tasks.back();
+		n.popBack();
+		out( n, " " );
+}
+// Outputs: 32 29 5 4
 		\end{lstlisting}
 	\end{block}
 \end{frame}
@@ -305,11 +313,11 @@
 \begin{frame}[fragile]{Loops (2)}
 	\begin{block}{Looping with \lstinline!for!:}
 		\begin{lstlisting}
-			var sum = 0;
-			for(var i = 0; i < 100; ++i) {
-			    sum += i;
-			}
-			outln("Sum of numbers: ", sum);
+var sum = 0;
+for(var i = 0; i < 100; ++i) {
+		sum += i;
+}
+outln("Sum of numbers: ", sum);
 		\end{lstlisting}
 	\end{block}
 \end{frame}
@@ -318,13 +326,14 @@
 	\begin{block}{Iterate over a container: \lstinline!foreach!.}
 		\small	
 		\begin{lstlisting}
-			var chars = ['a', 'c', 'k', 'b', 'd', 'x', 'j'];
-			foreach(chars as var index, var currentChar) {
-			    if(currentChar === 'x') {
-			        outln("Character 'x' found at index ", index);
-			        break;
-			    }
-			}
+var chars = ['a', 'c', 'k', 'b', 'd', 'x', 'j'];
+foreach(chars as var index, var currentChar) {
+		if(currentChar === 'x') {
+				outln("Character 'x' found at index ", 
+					index);
+				break;
+		}
+}
 		\end{lstlisting}
 		\normalsize
 	\end{block}
@@ -354,74 +363,65 @@ try{
 	\end{itemize}
 \end{frame}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Functions}
 \begin{frame}[fragile]{Declaring simple functions}
 	\begin{itemize}
-	\item Declare functions with \lstinline!fn!.
+	\item Declare functions with \lstinline!fn!
 	\item Functions have no names, but they can be stored in a variable:
 		\begin{lstlisting}
-			var square = fn(num) {
-			    return num * num;
-			};
-			var a = square(5);
-			outln( a ); // Outputs: 25
+var square = fn(num) {
+		return num * num;
+};
+var a = square(5);
+outln( a ); // Outputs: 25
 		\end{lstlisting}
 		\end{itemize}
-	\end{frame}
+\end{frame}
 
 
 \begin{frame}[fragile]{Parameters}
 	\begin{itemize}
 	\item Parameters can be restricted with type checks:
 		\begin{lstlisting}
-				var square = fn(Number num) {
-			    return num * num;
-			};
-			square(4); // ok
-			square( 'foo' ); // runtime error
-			
+var square = fn(Number num) {
+		return num * num;
+};
+square(4); // ok
+square( 'foo' ); // runtime error
 		\end{lstlisting}
 	\pause
 	\item Parameters can have default values:
 		\begin{lstlisting}
-			var add = fn(a,b=1) {
-			    return a+b;
-			};
-			outln( add( 10,2 ) ); // Outputs: 12
-			outln( add( 10 ) ); // Outputs: 11
+var add = fn(a,b=1) {
+		return a+b;
+};
+outln( add( 10,2 ) ); // Outputs: 12
+outln( add( 10 ) ); // Outputs: 11
 		\end{lstlisting}
-		\end{itemize}
-	\end{frame}
+	\end{itemize}
+\end{frame}
 
 \begin{frame}[fragile]{Multi parameters}
 	\begin{itemize}
 	\item Multi parameters accept arbitrary many values and store them in an array:
 		\begin{lstlisting}
 var sum = fn( numbers... ) {
-    var sum = 0;
-    foreach( numbers as var n)
-        sum += n;
-    return sum;
+	var sum = 0;
+	foreach( numbers as var n)
+		sum += n;
+	return sum;
 };
 outln( sum( 10,100,1000,4 ) ); // Outputs 1114
 		\end{lstlisting}
-	%\pause
-	%\item Parameters can have default values:
-		%\begin{lstlisting}
-			%var add = fn(a,b=1) {
-			    %return a+b;
-			%};
-			%outln( add( 10,2 ) ); // Outputs: 12
-			%outln( add( 10 ) ); // Outputs: 11
-		%\end{lstlisting}
 		\end{itemize}
-	\end{frame}
+\end{frame}
 
 
-\begin{frame}[fragile]{Binding parameter values}
+\begin{frame}[fragile]{Bind parameter values}
 	\begin{itemize}
 	\item Set the first parameters to fixed values: \lstinline!Array => fn(...)!.
+	\item Bound function object behaves like normal function.
 %	\item Functions have no names, but they can be stored in a variable:
 		\begin{lstlisting}
 var myFun = fn(a,b,c) {
@@ -433,9 +433,24 @@ var myBoundFun = [ 100, 200 ] => myFun;
 myBoundFun( 300 ); // Output: a:100 b:200 c:300
 		\end{lstlisting}
 		\end{itemize}
-	\end{frame}
+\end{frame}
 
-\begin{frame}[fragile]{Functions and parameter scopes}
+\begin{frame}[fragile]{Bind calling object}
+	\begin{itemize}
+	\item Create a combination of a function and and object: \lstinline!object->fun!
+	\item Bound function object behaves like normal function.
+	\item When called, the bound object is the function's \lstinline!this!-object.
+%	\item Functions have no names, but they can be stored in a variable:
+		\begin{lstlisting}
+var myObject = [100,200];
+var myBoundFun = myObject -> Array.max;
+
+outln( myBoundFun() ); // Output: 200
+		\end{lstlisting}
+		\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Variable and parameter scopes}
 	\begin{itemize}
 	\item The scope of local variables (\lstinline!var!) is the tightest enclosing block, but \emph{excluding} functions defined in the block.
 	\item The scope of a parameter is the enclosing block of the function, but \emph{excluding} functions defined in the function.
@@ -452,24 +467,24 @@ out( factorial( 5 ) ); // Output: 120
 		\end{lstlisting}
 	\end{itemize}
 		
-	\end{frame}
+\end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Objects and Types}
 \begin{frame}[fragile]{Extendable object}
 	\begin{block}{Extendable objects:  \lstinline!ExtObject!.}
 		\begin{lstlisting}
-			var car = new ExtObject;
-			car.color := "red"; // := creates a new member
-			car.speed := 190;
-			car.outputDesc := fn() {
-			    out("This is a ", this.color, " car ");
-			    out("with top speed ", this.speed, ".\n");
-			};
+var car = new ExtObject;
+car.color := "red"; // := creates a new member
+car.speed := 190;
+car.outputDesc := fn() {
+		out("This is a ", this.color, " car ");
+		out("with top speed ", this.speed, ".\n");
+};
 
 
-			car.speed = 185;
-			car.outputDesc();
+car.speed = 185;
+car.outputDesc();
 		\end{lstlisting}
 	\end{block}
 	Output: This is a red car with top speed 185.
@@ -478,20 +493,20 @@ out( factorial( 5 ) ); // Output: 120
 \begin{frame}[fragile]{Inheritance}
 	\begin{block}{Types and inheritance:}
 		\begin{lstlisting}
-			var Shape = new Type;
-			Shape.color := "white";
+var Shape = new Type;
+Shape.color := "white";
 
-			// New type that is derived from Shape
-			var Polygon = new Type(Shape); 
-			Polygon.numVertices := 3;
+// New type that is derived from Shape
+var Polygon = new Type(Shape); 
+Polygon.numVertices := 3;
 
-			// New type that is derived from Shape
-			var Circle = new Type(Shape); 
-			Circle.radius := 0;
+// New type that is derived from Shape
+var Circle = new Type(Shape); 
+Circle.radius := 0;
 
-			var circle = new Circle;
-			circle.color = "red";
-			circle.radius = 5;
+var circle = new Circle;
+circle.color = "red";
+circle.radius = 5;
 		\end{lstlisting}
 	\end{block}
 \end{frame}
@@ -502,7 +517,7 @@ out( factorial( 5 ) ); // Output: 120
 	\end{block}
 \end{frame}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{Std library}
 \begin{frame}[fragile]{Std library}
 	\begin{itemize}
@@ -531,8 +546,8 @@ outln(arr2.implode() ); // Outputs: Hallo!
 	\end{itemize}
 	
 \end{frame}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Example}
 %\begin{frame}{Delegation}
@@ -556,23 +571,43 @@ outln(arr2.implode() ); // Outputs: Hallo!
 		\lstinputlisting{ExamplePlayer.escript}
 	\end{block}
 \end{frame}
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
 \begin{frame}{Further Documentation}
 	You can find additional documentation in \texttt{EScript/docs/Introduction.html}.
 \end{frame}
-
-
-% binding parameters/Objects
-% var and static life
-% attributes
-% exception handling
-% std lib
-% modules
-% traits
-
-%homework
+%%
+%\begin{frame}{Outlook}
+%
+	%Part II: 
+	%\begin{itemize}
+	%\item	Std library continued...
+		%\begin{itemize}
+			%\item Dynamic object compositing using \textbf{traits}.
+			%\item Organizing projects using \textbf{modules}.
+			%\item Data handling using \textbf{DataWrapper}.
+		%\end{itemize}
+	%\item	Writing a C++ binding.
+		%\begin{itemize}
+			%\item Function wrapper.
+			%\item Object wrapper.
+		%\end{itemize}
+	%\end{itemize}
+%
+%
+%\end{frame}
+%
+%
+%% binding parameters/Objects
+%% var and static life
+%% attributes
+%% exception handling
+%% std lib
+%% modules
+%% traits
+%
+%%homework
 
 \end{document}
