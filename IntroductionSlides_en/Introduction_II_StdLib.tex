@@ -1,0 +1,326 @@
+\documentclass[ucs,9pt]{beamer}
+
+% Set input encoding to UTF-8.
+\usepackage[utf8x]{inputenc}
+
+% Set fonts.
+\usepackage[T1]{fontenc}
+\usepackage{textcomp}
+\usepackage{tgtermes}
+\usepackage{tgheros}
+\usepackage{tgcursor}
+
+% Set language.
+\usepackage[english]{babel}
+
+\usepackage{microtype}
+\usepackage{listings}
+
+\title{EScript (0.7.2 Egon)}
+\subtitle{A Short Introduction Part II -- The EScript StdLib}
+\author{Claudius~Jähn}
+\date{Version: March, 2015}
+\titlegraphic{\includegraphics[width=0.1\textwidth]{logoAscii.pdf}}
+
+% theme Benjamin
+%\useinnertheme{rectangles}
+%\useoutertheme{infolines}
+%\usecolortheme{seahorse}
+%\usecolortheme{rose}
+
+% theme Claudius
+\usetheme{Pittsburgh}
+\useinnertheme{rectangles}
+\usecolortheme{fly}
+\setbeamercolor{normal text}{bg=black, fg=white}
+\setbeamercolor{subtitle}{bg=black, fg=white}
+\setbeamercolor{block body}{fg=white,bg=white!10!black}
+
+\AtBeginSection[] {
+\begin{frame}{Overview}
+	\tableofcontents[currentsection]
+\end{frame}
+}
+
+\begin{document}
+\lstdefinelanguage{EScript}{
+	morekeywords={var,new,fn,this,true,false,void,if,else,while,for,foreach,as,thisFn,break,continue,return,once,init,switch,case,yield,static},
+	morekeywords=[2]{out,outln,ExtObject,Type,Number,Map,Array},
+	sensitive=true,
+	morecomment=[l]{//},
+	morecomment=[s]{/*}{*/},
+	morestring=[b]{"},
+	morestring=[d]{’}
+}
+\lstset{
+	language=EScript,
+	showstringspaces=false,
+	tabsize=4,
+	basicstyle=\ttfamily,
+	%keywordstyle=[2]\color{blue}
+}
+\maketitle
+
+
+\begin{frame}{Overview}
+\tableofcontents
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Introduction}
+\begin{frame}{Part II - The EScript StdLib}
+\begin{itemize}
+		\item Set of helper functions and types.
+		\item Goals: 
+		\begin{itemize}
+			\item Provide helper functions and additional data types.
+			\item Provide method to customize objects and types using \textbf{traits}.
+			\item Support project structuring using \textbf{modules}.
+		\end{itemize}
+\end{itemize}
+\end{frame}
+
+
+
+\begin{frame}[fragile]{Init the StdLib}
+\begin{itemize}
+		\item (quick and easy) Load the complete StdLib into the global Std-namespace:
+\begin{lstlisting}
+load("./Std/complete.escript");
+
+// Std - contains all components of the StdLib.
+// example:
+var myMultiprocedure = new Std.MultiProcedure;
+\end{lstlisting}
+		\item Alternativ: Load the module loader and load modules when needed.
+\begin{lstlisting}
+var module = load("./Std/module.escript");
+// example:
+var MultiProcedure = module('Std/MultiProcedure');
+var myMultiprocedure = new MultiProcedure;
+\end{lstlisting}
+\end{itemize}
+\end{frame}
+
+\section{Modules}
+
+\begin{frame}[fragile]{Modules: Overview}
+\begin{itemize}
+\item Modules are arbitrary objects identified by an unique id (e.g. 'Std/MultiProcedure').
+\item A Module is (normally) defined in a single file.
+\item The module loader loads the file when first needed.
+\item The concept of EScript modules is based on the JavaScript AMD (Asynchronous Module Definition).
+\item Goals of using modules:
+\begin{itemize}
+\item Helps structuring code
+\item Only load necessary files when needed
+\item Explicitly defines dependencies between modules 
+\item No namespace pollution 
+\end{itemize}
+\item Note for experienced EScript users: Modules are the recommended Replacement for  \lstinline!loadOnce!.
+\end{itemize}
+\end{frame}
+
+
+\begin{frame}[fragile]{Modules: The module loader}
+How to get a module loader object:
+\begin{itemize}
+\item \lstinline!var module = load("PathToStdLib/module.escript"); !
+\item If the StdLib has been registered to the Std-Namespace, a module loader is avaiable as \lstinline!Std.module! (going to change to \lstinline!Std.module!)
+\item If the file is loaded by a module loader itself, a module loader is available as injected static variable: \lstinline!module!\\
+The injected module loader supports relative module ids.
+\end{itemize}
+Usage:
+\begin{itemize}
+\item \lstinline!var MultiProcedure = module('Std/MultiProcedure');!
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Modules: Writing a module}
+Modules are defined by ordinary EScript files returning the module value.
+\begin{lstlisting}
+// MyTypeAsModule.escript
+var T = new Type;
+T.makeFoo ::= fn(){	outln("foo"); };
+return T;
+
+// main.escript
+// (module loader is available in Std namespace)
+var MyType = Std.module('MyTypeAsModule);
+var myObject = new MyType;
+myObject.makeFoo();
+\end{lstlisting}
+ 
+\end{frame}
+
+
+\begin{frame}[fragile]{Modules: Module callbacks}
+\begin{itemize}
+\item Loading a module can trigger a callback.\\
+ \lstinline!module.on('MyModule',fn(MyModule){doSomething(MyModule);})
+\item If the module has already been loaded, the callback is executed immediately.
+\item Application scenario: Optional extension
+\begin{lstlisting}
+// myFeature.escript -- a module that 
+//  registers its own gui entry iff the 
+//  MySystem/gui is available
+
+static myFeature;
+...
+module.on( 'MySystem/gui', fn(gui){
+	gui.addSomeFancyMenuEntries( myFeature );
+});
+return myFeature;
+
+\end{lstlisting}
+\end{itemize}
+\end{frame}
+
+% ----------------------------------------------------------------
+
+\section{Traits}
+
+\begin{frame}[fragile]{Traits: Motivation}
+\begin{itemize}
+\item Challenge: Create objects/types that provide a mix of different properties.
+\item Possible solutions: Multiple inheritance; interfaces; composition.
+\item Possible solution in EScript: Add desired properties/members/methods manually as object attributes.
+\item Solution provided by StdLib: \textbf{Traits} 
+\item A Trait adds a \textbf{well defined} property/functionality to an object or a type.
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Traits: Example 1/1}
+Example: 
+\begin{lstlisting}
+// Property 1: 
+//	has function "makeFoo()" 
+//		as defined in FooMakerTrait.
+// Property 2: 
+//	has function "makeBar()" 
+//		as defined in BarMakerTrait.
+
+var myObject = new ExtObject;
+Std.Traits.addTrait( myObject, FooMakerTrait );
+Std.Traits.addTrait( myObject, BarMakerTrait, 2 );
+myObject.makeFoo(); // output: foo
+myObject.makeBar(); // output: barbar
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]{Traits: Example 2/2}
+\begin{lstlisting}
+var FooMakerTrait = new Std.Traits.GenericTrait;
+FooMakerTrait.attributes.makeFoo := fn(){ 
+	outln("foo"); 
+};
+
+// ------------
+
+var BarMakerTrait = new Std.Traits.GenericTrait;
+BarMakerTrait.attributes.makeBar := fn(){ 
+	outln("bar"*this._numBars); 
+};
+BarMakerTrait.onInit += fn(obj, Number numBars){
+	obj._numBars@(private) := numBars;
+};
+\end{lstlisting}
+\end{frame}
+
+
+\begin{frame}[fragile]{Traits: Type Example}
+\begin{lstlisting}
+var BlubMakerTrait = new Std.Traits.GenericTrait;
+BlubMakerTrait.attributes.makeBlub ::= fn(){ 
+	outln("blub"*this.numBlubs); 
+};
+BlubMakerTrait.attributes.numBlubs := 3;
+BlubMakerTrait.attributes.someArray @(init) := 
+								Array;
+// Restrict trait to Types:
+BlubMakerTrait.onInit += fn(Type t){
+}; 
+
+
+var MyType = new Type;
+Std.Traits.add( MyType, BlubMakerTrait);
+var a = new MyType;
+a.makeBlub();
+...
+
+\end{lstlisting}
+\end{frame}
+%
+
+\begin{frame}[fragile]{Traits: Functions}
+\begin{itemize}
+\item \lstinline!Std.Traits.addTrait(obj, trait, parameters...)! \\
+	Add the given trait to the given object; additional parameters are passed to the trait's \lstinline!onInit! method.
+\item \lstinline!Std.Traits.queryTrait(obj, trait)! \\
+	Checks if \lstinline!obj! has the given trait.
+\item \lstinline!Std.Traits.requireTrait(obj, trait)! \\
+	Throw an error if \lstinline!obj! does not have the given trait.
+\item \lstinline!Std.Traits.assureTrait(obj, trait)! \\
+	If \lstinline!obj! does not have the given trait, add it now.
+\end{itemize}
+\end{frame}
+%
+
+
+%
+\begin{frame}[fragile]{Other modules...}
+\begin{itemize}
+\item MultiProcedure
+\item DataWrapper
+\item JSon-DataStore
+\item Set
+\item PriorityQueue
+\item ObjectSerialization
+\item addRevocably
+\end{itemize}
+\end{frame}
+
+\begin{frame}[fragile]{Part III -- EScript and PADrend}
+\begin{itemize}
+\item Was ist ein Plugin (im Vergleich zu einem Modul)? 
+\item Was ist ein Extension-Point?
+\item GUI (Popup-Window, DataWrapper, Menu, Registry, Button)
+\item Beispiel-Plugin
+\item Plugin-Struktur von PADrend
+\item Wie läuft PADrend? Starten/Initialisieren/EventHandling/Rendering
+\end{itemize}
+\end{frame}
+%
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\section{Std library}
+%\begin{frame}[fragile]{Std library}
+	%\begin{itemize}
+		%\item Example: \lstinline!MultiProcedure!
+		%\begin{lstlisting}
+%var myFun = new Std.MultiProcedure;
+%
+%myFun += fn(arr){	arr += 'Hallo'; };
+%myFun += fn(arr){	
+   %arr += ' Welt'; 
+   %return $REMOVE;
+%};  
+%myFun += fn(arr){	arr += '';  };
+%
+%var arr = [];
+%myFun( arr );
+%outln(arr.implode() ); // Outputs: Hallo Welt!
+%
+%var arr2 = [];
+%myFun( arr2 );
+%outln(arr2.implode() ); // Outputs: Hallo!
+%
+		%\end{lstlisting}
+	%\end{itemize}
+	%
+%\end{frame}
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\end{document}
