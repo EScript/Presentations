@@ -556,12 +556,7 @@ circle.radius = 5;
 	\end{block}
 \end{frame}
 %
-%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%
-\begin{frame}{Further Documentation}
-	You can find additional documentation in \texttt{EScript/docs/Introduction.html}.
-\end{frame}
+%}
 %%
 %\begin{frame}{Outlook}
 %
@@ -595,9 +590,12 @@ circle.radius = 5;
 %%homework
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\section{Loading and executing code}
+
+
 \begin{frame}[fragile]{Compiler-constants}
 \begin{itemize}
-\item The EScript compiler defines compiletime-constants  (similar to C++ preprocessor defines).
+\item The EScript compiler defines compile time constants  (similar to C++ preprocessor defines).
 \item The filename of the current EScript file: \lstinline!__FILE__!
 \item The folder of the current EScript file: \lstinline!__DIR__!
 \item The line number: \lstinline!__LINE__!
@@ -605,17 +603,21 @@ circle.radius = 5;
 \end{itemize}
 \end{frame}
 
+
 \begin{frame}[fragile]{Loading script files}
 \begin{itemize}
 	\item EScript script files are loaded and executed using \lstinline!load( filename )!
 	\item Files can return an object:
-	// main.escript
+		\begin{lstlisting}	
+	// File: main.escript
 	out( load( __DIR__+"/"+test.escript ) );
 	
-	// test.escript
-	// ...
-	outln( "Executing "`,__FILE__);
+	// File: test.escript
+	outln( "Executing ",__FILE__);
 	return "someResultValue";
+
+	// output: someResultValue
+		\end{lstlisting}	
 \end{itemize}
 \end{frame}
 
@@ -623,214 +625,62 @@ circle.radius = 5;
 \begin{itemize}
 \item EScript code can be executed using \lstinline!eval( "Code..." )!
 \item The executed code can return an object:
+		\begin{lstlisting}
 outln(
-	"outln('Executing code'); "
-	"return 'someResult'; "
+	eval(	
+		"outln('Executing code'); "
+		"return 'someResult'; "
+	)
 );
+		\end{lstlisting}
 \end{itemize}
 \end{frame}
 
-\begin{frame}[fragile]{variable injection}
+\begin{frame}[fragile]{Variable injection}
 \begin{itemize}
-	\item To pass data to loaded or evalated code, static variables can be injected.
+	\item To pass data to loaded or evaluated code, static variables can be injected.
 	\item The variables are passed as additional Map-parameter to \lstinline!eval! or \lstinline!load!.
-outln(
-	"outln('Value of myVar:',myVar); ",
+			\begin{lstlisting}
+
+eval("outln('Value of myVar:',myVar); ",
 	{	$myVar : 42 }
 );
-\end{itemize}
-\end{frame}
 
-\begin{frame}{Part II - The EScript StdLib}
-\begin{itemize}
-		\item Set of helper functions and types.
-		\item Goals: 
-		\begin{itmeize}
-			\item Provide helper functions and data types
-			\item Support project structuring using \textbf{modules}.
-		\end{itemize}
-\end{itemize}
-\end{frame}
-
-\begin{frame}{Init the StdLib}
-\begin{itemize}
-		\item (quick and dirty) Load the complete StdLib into the global Std-namespace:
-	%		static module = load( IO.dirname(args[0])+ "/Std/module.escript"); 
-\begin{lstlisting}
-		load("./Std/complete.escript");
-		// Std - contains all components of the StdLib.
-		// e.g. Std.MultiProcedure
-\end{lstlisting}
-		\item Alternativ: Load the module loader and load modules when needed.
-\begin{lstlisting}
-		var module = load("./Std/module.escript");
-		// e.g.:
-		var MultiProcedure = module('Std/MultiProcedure');
-\end{lstlisting}
-\end{itemize}
-\end{frame}
-
-\begin{frame}{Modules: Overview}
-\begin{itemize}
-\item Modules are arbitrary objects identified by an unique id (e.g. 'Std/MultiProcedure').
-\item A Module is (normally) defined in a single file.
-\item The module loader loads the file when first needed.
-\item The concept of EScript modules is based on the JavaScript AMD (Asynchronous Module Definition).
-\item Goals of using modules:
-\begin{itemize}
-\item Helps structuring code
-\item Only load necessary files when needed
-\item Explicitly defines dependencies between modules 
-\item No namespace pollution 
-\end{itemize}
-\item Note for experienced EScript users: Modules are the recommended Replacement for  \lstinline!loadOnce!.
-\end{itemize}
-\end{item}
-\end{frame}
-
-\begin{frame}{Modules: The module loader}
-How to get a module loader object:
-\begin{itemize}
-\item \lstinline!var module = load("PathToStdLib/module.escript"'); !
-\item If the StdLib has been registered to the Std-Namespace, a module loader is avaiable as \lstinline!Std.require! (going to change to \lstinline!Std.module!)
-\item If the file is loaded by a module loader itself, a module loader is available as injected static variable: \lstinline!module!\\
-The injected module loader supports relative module ids.
-\end{itemize}
-Usage:
-\begin{itemize}
-\item \lstinline!var MultiProcedure = module('Std/MultiProcedure');!
-\end{itemize}
-\end{frame}
-
-
-
-\begin{frame}{Modules: Writing a module}
-Modules are defined by ordinary EScript files returning the module value.
-\begin{lstlisting}
-// MyTypeAsModule.escript
-var T = new Type;
-T.makeFoo ::= fn(){	outln("foo"); };
-return T;
-
-// main.escript
-// (module loader is available in Std namespace)
-var MyType = Std.require('MyTypeAsModule);
-var myObject = new new MyType;
-myObject.makeFoo();
-\end{lstlisting}
- 
-\end{frame}
-
-\begin{frame}{Traits: Motivation}
-Challenge: Create objects/types that provide a mix of different properties.
-Possible solutions: Multiple inheritance; interfaces; composition.
-EScript: Traits 
-Traits add well defined properties to an object or a type.
-\end{frame}
-
-\begin{frame}{Traits: Example}
-Example: 
-	Property 1: has function "makeFoo()" as defined in FooMakerTrait.
-	Property 2: has function "makeBar()" as defined in BarMakerTrait.
-var myObject = new ExtObject;
-Std.Traits.addTrait( myObject, FooMakerTrait );
-Std.Traits.addTrait( myObject, BarMakerTrait, 2 );
-myObject.makeFoo(); // output: foo
-myObject.makeBar(); // output: barbar
-\end{frame}
-
-\begin{frame}{Traits: Example 2}
-var FooMakerTrait = new Std.Traits.GenericTrait;
-FooMakerTrait.attributes.makeFoo := fn(){ outln("foo"); };
-
-var BarMakerTrait = new Std.Traits.GenericTrait;
-BarMakerTrait.attributes.makeBar := fn(){ outln("bar"*this._numBars); };
-BarMakerTrait.onInit += fn(obj, Number numBars){
-	obj._numBars@(private) := numBars;
-};
-\end{frame}
-
-\begin{frame}{Traits: Type Example}
-var BlubMakerTrait = new Std.Traits.GenericTrait;
-BlubMakerTrait.attributes.makeBlub ::= fn(){ outln("blub"*this.numBlubs); };
-BlubMakerTrait.attributes.numBlubs := 3;
-BlubMakerTrait.attributes.someArray @(init) := Array;
-BlubMakerTrait.onInit += fn(Type t){}; // only allow for types.
-
-var MyType = new Type;
-Std.Traits.add 
-
-var BarMakerTrait = new Std.Traits.GenericTrait;
-BarMakerTrait.attributes.makeBar := fn(){ outln("bar"*this._numBars); };
-BarMakerTrait.onInit += fn(obj, Number numBars){
-	obj._numBars@(private) := numBars;
-};
-\end{frame}
-
-
-\begin{frame}{Traits: Functions}
-Std.Traits.addTrait(obj, trait, parameters...)
-	Add the given trait to the given object; additional parameters are passed to the trait's onInit function.
-Std.Traits.queryTrait(obj, trait)
-	Checks if obj has the given trait.
-Std.Traits.requireTrait(obj, trait)
-	Throw an error if obj does not have the given trait.
-Std.Traits.assureTrait(obj, trait)
-	If object does not have the given trait, add it.
-\end{frame}
-
-
-\begin{frame}{Todo}
-2.Teil Std-Lib
-- Load Std-Lib
-- Module-Konzept (Dependency injection)
-- Std-Namespace
-- MultiProcedure
-- DataWrapper
-- JSon-DataStore
-- Set/PriorityQueue
-- ObjectSerialization
-- addRevocably
-
-
-3.Teil PADrend
-- High-Level-Pluginstruktur
-- Was ist ein Plugin?
-- Was ist ein Extension-Point?
-- GUI (Popup, DataWrapper, Menu, Registry, Button)
-- Beispiel-Plugin
-\end{frame}
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{Std library}
-\begin{frame}[fragile]{Std library}
-	\begin{itemize}
-		\item Example: \lstinline!MultiProcedure!
-		\begin{lstlisting}
-var myFun = new Std.MultiProcedure;
-
-myFun += fn(arr){	arr += 'Hallo'; };
-myFun += fn(arr){	
-   arr += ' Welt'; 
-   return $REMOVE;
-};  
-myFun += fn(arr){	arr += '';  };
-
-var arr = [];
-myFun( arr );
-outln(arr.implode() ); // Outputs: Hallo Welt!
-
-var arr2 = [];
-myFun( arr2 );
-outln(arr2.implode() ); // Outputs: Hallo!
-
+	// Output: Value of myVar: 42
 		\end{lstlisting}
-	\end{itemize}
-	
+\end{itemize}
 \end{frame}
+
+
+%
+%\begin{frame}{Todo}
+%2.Teil Std-Lib
+%- Load Std-Lib
+%- Module-Konzept (Dependency injection)
+%- Std-Namespace
+%- MultiProcedure
+%- DataWrapper
+%- JSon-DataStore
+%- Set/PriorityQueue
+%- ObjectSerialization
+%- addRevocably
+%
+%
+%3.Teil PADrend
+%- High-Level-Pluginstruktur
+%- Was ist ein Plugin?
+%- Was ist ein Extension-Point?
+%- GUI (Popup, DataWrapper, Menu, Registry, Button)
+%- Beispiel-Plugin
+%\end{frame}
+
 %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
+%
+\begin{frame}{Further Documentation}
+	You can find additional documentation in \texttt{EScript/docs/Introduction.html}. \\
+	\hspace{2cm}\\
+	Part II introduces the EScript Std-library...
+\end{frame}
 
 \end{document}
